@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "total_files": 1,
+    "timestamp": "2025-01-25 19:09:55"
+  },
+  "analyses": [
+    {
+      "file": "analyzed_dataset_trustpilot-reviews-scraper_2025-01-17_18-48-35-179_chunk_1.json",
+      "analysis": "json\n[\n    {\n        \"date\": \"2025-01-17\",\n        \"title\": \"Absolutely horrible\",\n        \"rating\": 1,\n        \"sentimentSummary\": \"The customer expresses extreme dissatisfaction with every aspect of their experience, highlighting unacceptable prices, poor plane conditions, and terrible customer service. The sentiment is overwhelmingly negative, indicating a complete lack of trust in the company.\"\n    },\n    {\n        \"date\": \"2024-06-21\",\n        \"title\": \"BA YOU SHOULD BE ASHAMED OF YOURSELVES\",\n        \"rating\": 1,\n        \"sentimentSummary\": \"The review details a frustrating travel experience marked by significant delays and inadequate support from customer service. The customer feels misled and mistreated, emphasizing the long wait for compensation and the overall lack of assistance. The sentiment is highly negative, reflecting deep disappointment.\"\n    },\n    {\n        \"date\": \"2025-01-16\",\n        \"title\": \"BRITISH AIRWAYS AWFUL SERVICE\",\n        \"rating\": 1,\n        \"sentimentSummary\": \"The review conveys strong frustration with the airline's inability to honor a seat upgrade and their slow processing of refunds. The repetitive nature of poor customer service interactions exacerbated the negative sentiment, showcasing a significant lack of care from the airline.\"\n    },\n    {\n        \"date\": \"2024-11-17\",\n        \"title\": \"British Airways happy to 'steal' from customers! Appalling treatment!\",\n        \"rating\": 1,\n        \"sentimentSummary\": \"The reviewer expresses outrage over being unable to book a seat for a cello, feeling cheated out of \u00a376 due to poor communication and lack of support from BA staff. The sentiment is extremely negative, portraying the company as dismissive and unhelpful towards customers' specific needs.\"\n    },\n    {\n        \"date\": \"2025-01-06\",\n        \"title\": \"DO NOT FLY WITH BA!\",\n        \"rating\": 1,\n        \"sentimentSummary\": \"The customer recounts a significant delay in receiving their luggage, leading to missed connections and additional travel expenses, indicating a total breakdown in service. The frustration is palpable, and the review underscores a completely negative sentiment regarding BA's reliability.\"\n    }\n]"
+    }
+  ]
+}

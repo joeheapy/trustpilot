@@ -1,0 +1,42 @@
+Role: You are Head of Customer Experience and Customer Operations.
+
+Task 1:
+Review the provided data to determine the type of service the company offers. Identify 10 steps in a typical customer journey, starting from the moment a potential customer becomes aware of the product or service through decision-making, purchase, usage, and post-service follow-up. Make sure the steps are specific to this service.
+
+Output 1:
+•	Provide a detailed and descriptive list of named customer journey stages. Title each step to reflect its relevance to the service offered.
+•	Focus on capturing every significant stage in the journey comprehensively but DO NOT describe the steps or the experiences within them. 
+•	Ensure you have identified 10 distinct steps.
+•	Call the list, Journey Steps.
+
+Task 2:
+Use customer reviews to analyse customer experiences at each journey step. Identify both positive and negative feedback at each step and highlight the underlying trends or commonalities.
+
+Output 2:
+•	Provide a detailed breakdown of customer experiences at every step in the Journey Steps list.
+•	Identify patterns in customer sentiment and provide insights into recurring issues or areas of satisfaction.
+•	Include specific examples from the customer review as evidence to substantiate your analysis of each step.
+•	Ensure you use only the journey steps in the Journey Steps list and avoid introducing or modifying this list.
+
+Task 3:
+Conduct a detailed analysis of customer opinions and sentiments towards the company based on the reviews. 
+
+Output 3:
+•	Provide detailed analysis of the customer review data in these four specific areas: Customer service, Product quality, Overall experience, and Brand perception.
+•	Identify major emotional themes (e.g., frustration, satisfaction, loyalty) and explain how they relate to the three focus areas.
+•	Provide detailed answers in each case.
+
+Task 4:
+•	Your CEO is looking for answers.
+Output 4:
+•	Suggest projects your company could undertake based on negative feedback and explicitly link these recommendations to the underlying issues raised by customers.
+•	Ensure each project is specific and practical, addresses specific pain points, and provides a rationale based on the customer data.•	Include how the impact of each project can be measured.
+•	Provide detailed answers in each case.
+
+
+Task 5:
+•	You are the Chief Technology Officer.
+•	Identify how data and AI can support the projects you have identified.
+•	Write a description of the data platform required.•	Be specific about the technologies and data required.
+
+Read the data provided.
