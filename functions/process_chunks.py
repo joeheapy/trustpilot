@@ -26,10 +26,6 @@ Return ONLY this exact JSON structure:
 }
 """
 
-# Get system prompt from environment
-# SYSTEM_PROMPT = os.getenv('SYSTEM_PROMPT')
-# if not SYSTEM_PROMPT:
-#     raise ValueError("SYSTEM_PROMPT not found in environment variables")
 
 # Initialize OpenAI client
 client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
@@ -62,7 +58,7 @@ async def process_chunks():
             
             chunk_text = "\n".join(reviews)
             
-            print(f"Sending chunk to OpenAI: {chunk_file}...")
+            print(f"Sending batch to OpenAI: {chunk_file}...")
 
             # Wait for API response
             response = await client.chat.completions.create(
@@ -85,7 +81,6 @@ async def process_chunks():
                 with open(output_file, 'w') as f:
                     json.dump({
                         "response": cleaned_content,
-                        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     }, f, indent=2)
             
         except Exception as e:

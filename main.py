@@ -5,12 +5,12 @@ from datetime import datetime
 import json
 import asyncio
 from dotenv import load_dotenv
-from functions import get_input_file, process_chunks, initialize_directories, generate_journey_steps, map_reviews_to_journey
+from functions import get_input_file, process_chunks, initialize_directories, generate_journey_steps, map_reviews_to_journey, plot_average_ratings
 
 # Set chunk size
-NUM_REVIEWS_PER_CHUNK = 20
+NUM_REVIEWS_PER_CHUNK = 10
 # Set number of chunks to process
-NUM_CHUNKS = 2
+NUM_CHUNKS = 9
 
 # Load environment variables
 load_dotenv()
@@ -34,9 +34,11 @@ def load_json_data(input_file):
         with open(input_file, 'r') as f:
             reviews_data = json.load(f)
             
-        print(f"\nSuccessfully loaded {len(reviews_data)} reviews\n")
+        print(f"Successfully loaded {len(reviews_data):,} reviews")
+        print(f"Processing {NUM_CHUNKS:,} batches of {NUM_REVIEWS_PER_CHUNK:,} reviews each")
+        print(f"Total reviews to process: {NUM_CHUNKS * NUM_REVIEWS_PER_CHUNK:,}")
         return reviews_data
-        
+                
     except json.JSONDecodeError as e:
         print(f"Error parsing JSON file: {str(e)}")
         raise
@@ -70,7 +72,7 @@ for i in range(min(NUM_CHUNKS, total_chunks)):
     with open(chunk_filename, 'w') as f:
         json.dump(chunk_reviews, f, indent=2)
     
-    print(f"Processing chunk {i + 1} of {total_chunks}...")
+    print(f"Making batch {i + 1} of {NUM_CHUNKS}...")
 
 # This function runs the process_chunks function and then compiles all analyzed files into one structured JSON file.
 async def main():
@@ -90,10 +92,10 @@ def compile_analyzed_files():
     
     # Combine analyses
     combined_data = {
-        "metadata": {
-            "total_files": len(analyzed_files),
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        },
+        # "metadata": {
+        #     "total_files": len(analyzed_files),
+        #     "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        # },
         "analyses": []
     }
     
@@ -103,7 +105,6 @@ def compile_analyzed_files():
             with open(os.path.join(analyzed_dir, file), 'r') as f:
                 analysis = json.load(f)
                 combined_data["analyses"].append({
-                    "file": file,
                     "analysis": analysis["response"]
                 })
         except Exception as e:
@@ -127,9 +128,13 @@ async def main():
         await generate_journey_steps()
         print("\nCustomer journey analysis complete")
         
-        # Map reviews to journey steps
+        # Map reviews to journey
         await map_reviews_to_journey()
         print("\nReview journey mapping complete")
+        
+        # Generate and save plot
+        plot_average_ratings()
+        print("\nPlotting complete")
         
     except Exception as e:
         print(f"\nError in main execution: {str(e)}")

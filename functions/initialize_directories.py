@@ -10,7 +10,8 @@ def initialize_directories():
         'data-chunks',
         'summarized-reviews',
         'journey-steps',
-        'reviews-by-journey-step'
+        'reviews-by-journey-step',
+        'visualizations'
     ]
     
     print(f"\nInitializing directories at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

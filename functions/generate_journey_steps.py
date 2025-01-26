@@ -11,7 +11,7 @@ load_dotenv()
 client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 async def generate_journey_steps():
-    """Generate customer journey steps from ssummarized-reviews"""
+    """Generate customer journey steps from summarized reviews"""
     try:
         # Find latest sentiment analysis file
         summary_dir = "summarized-reviews"
@@ -24,18 +24,24 @@ async def generate_journey_steps():
         if not files:
             raise FileNotFoundError("No sentiment analysis files found")
         
-        latest_file = os.path.join(summary_dir, files[-1])
-        print(f"\nSending summarised reviews to OpenAI to determine journey steps: {latest_file}")
+        summarized_reviews_file = os.path.join(summary_dir, files[-1])
+        print(f"Found latest analysis file: {summarized_reviews_file}")
         
-        # Read sentiment analysis data
-        with open(latest_file, 'r') as f:
-            analysis_data = json.load(f)
+        # Read and clean sentiment analysis data
+        with open(summarized_reviews_file, 'r') as f:
+            content = f.read()
+            # Remove both actual newlines and escaped newlines
+            cleaned_content = content.replace('\n', '').replace('\\n', '')
+            analysis_data = json.loads(cleaned_content)
+        
+        if not analysis_data:
+            raise ValueError("Empty or invalid analysis data")
         
         # Set up journey analysis prompt
         journey_prompt = """Review the provided data to determine the type of service the company offers. Identify 10 steps in a typical customer journey, starting when a potential customer becomes aware of the product or service through decision-making, purchase, using the product or service, and following up.
 
         Output:
-        • Provide a descriptive list of named customer journey stages. 
+        • Provide a descriptive list of named customer journey stages that are specific to this service or product. 
         • Ensure several of the steps describe the customer's use of the product or service.
         • DO NOT includ "feedback" as a step.
         • Title each step to reflect its relevance to the service offered.
@@ -47,36 +53,34 @@ async def generate_journey_steps():
             "journey_steps": [
                 {
                     "step_number": 1,
-                    "step_name": "name",
-                    "description": "brief description"
+                    "step_name": "step name",
+                    "description": "description of this step"
                 }
             ]
         }"""
         
-           # Make OpenAI API call
+        # Make OpenAI API call
         response = await client.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are analyzing customer journey data. Return only valid JSON."},
+                {"role": "system", "content": "You are analyzing customer journey data."},
                 {"role": "user", "content": json.dumps(analysis_data)},
                 {"role": "user", "content": journey_prompt}
             ]
         )
         
-        # This is the response from the OpenAI API
-        content = response.choices[0].message.content.strip()
-
+        # Parse and validate response
+        # content = response.choices[0].message.content.strip()
+        # print(f"Raw response content: {content[:200]}...")
+        
         try:
-            # Clean and parse response
-            cleaned_content = content.replace('\n', '').replace('```json', '').replace('```', '')
-            journey_data = json.loads(cleaned_content)
-            
-            if "journey_steps" not in journey_data:
-                raise ValueError("Response missing journey_steps key")
-                
+            journey_data = json.loads(content)
         except json.JSONDecodeError as e:
             print(f"JSON Parse Error: {str(e)}\nContent: {content}")
             raise
+        
+        if "journey_steps" not in journey_data:
+            raise ValueError("Response missing journey_steps key")
         
         # Save journey steps
         journey_dir = "journey-steps"
@@ -93,7 +97,7 @@ async def generate_journey_steps():
                 "journey_steps": journey_data["journey_steps"]
             }, f, indent=2)
         
-        print(f"\nJourney steps saved to: {output_file}")
+        print(f"Journey steps saved to: {output_file}")
         return journey_data
         
     except Exception as e:
