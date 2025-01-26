@@ -25,7 +25,7 @@ async def generate_journey_steps():
             raise FileNotFoundError("No sentiment analysis files found")
         
         latest_file = os.path.join(summary_dir, files[-1])
-        print(f"Found latest analysis file: {latest_file}")
+        print(f"\nSending summarised reviews to OpenAI to determine journey steps: {latest_file}")
         
         # Read sentiment analysis data
         with open(latest_file, 'r') as f:
@@ -39,7 +39,7 @@ async def generate_journey_steps():
         • Ensure several of the steps describe the customer's use of the product or service.
         • DO NOT includ "feedback" as a step.
         • Title each step to reflect its relevance to the service offered.
-        • capture every significant stage in the journey comprehensively but DO NOT describe the steps or the experiences within them. 
+        • Capture every significant stage in the journey comprehensively.
         • Ensure you have identified 10 distinct steps.
 
         Please return the response in this JSON format:
@@ -53,27 +53,36 @@ async def generate_journey_steps():
             ]
         }"""
         
-        # Make OpenAI API call
+           # Make OpenAI API call
         response = await client.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are analyzing customer journey data."},
+                {"role": "system", "content": "You are analyzing customer journey data. Return only valid JSON."},
                 {"role": "user", "content": json.dumps(analysis_data)},
-                {"role": "user", "content": journey_prompt},
-
+                {"role": "user", "content": journey_prompt}
             ]
         )
         
-        # Parse and validate response
-        journey_data = json.loads(response.choices[0].message.content)
+        # This is the response from the OpenAI API
+        content = response.choices[0].message.content.strip()
+
+        try:
+            # Clean and parse response
+            cleaned_content = content.replace('\n', '').replace('```json', '').replace('```', '')
+            journey_data = json.loads(cleaned_content)
+            
+            if "journey_steps" not in journey_data:
+                raise ValueError("Response missing journey_steps key")
+                
+        except json.JSONDecodeError as e:
+            print(f"JSON Parse Error: {str(e)}\nContent: {content}")
+            raise
         
-        # Create journey-steps directory if it doesn't exist
+        # Save journey steps
         journey_dir = "journey-steps"
         if not os.path.exists(journey_dir):
             os.makedirs(journey_dir)
-            print(f"Created directory: {journey_dir}")
         
-        # Save journey steps to new directory
         output_file = os.path.join(
             journey_dir, 
             f"customer_journey_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
@@ -81,12 +90,10 @@ async def generate_journey_steps():
         
         with open(output_file, 'w') as f:
             json.dump({
-                "source_file": latest_file,
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "journey_steps": journey_data["journey_steps"]
             }, f, indent=2)
         
-        print(f"Journey steps saved to: {output_file}")
+        print(f"\nJourney steps saved to: {output_file}")
         return journey_data
         
     except Exception as e:

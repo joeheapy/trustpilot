@@ -12,10 +12,24 @@ from functions.clean_markdown import clean_markdown
 # Load environment variables
 load_dotenv()
 
+SYSTEM_PROMPT = """You are a data processing assistant. You are tasked with analyzing the sentiment of customer reviews for a company. The reviews are in the form of text data. Your task is to read each review and determine the sentiment.You should then provide a brief summary of the sentiment analysis for each review - sentiment summary. The reviews are from a variety of sources, so you may encounter different writing styles and topics. Your goal is to provide an accurate and consistent analysis of the sentiment of each review. Please highlight specific details that evidence the customer experience.
+
+Date format always "YYYY-MM-DD"
+
+Return ONLY this exact JSON structure:
+
+{
+  "date": "string",
+  "title": "string",
+  "rating": "integer",
+  "sentimentSummary": "string"
+}
+"""
+
 # Get system prompt from environment
-SYSTEM_PROMPT = os.getenv('SYSTEM_PROMPT')
-if not SYSTEM_PROMPT:
-    raise ValueError("SYSTEM_PROMPT not found in environment variables")
+# SYSTEM_PROMPT = os.getenv('SYSTEM_PROMPT')
+# if not SYSTEM_PROMPT:
+#     raise ValueError("SYSTEM_PROMPT not found in environment variables")
 
 # Initialize OpenAI client
 client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
@@ -48,7 +62,7 @@ async def process_chunks():
             
             chunk_text = "\n".join(reviews)
             
-            print(f"\nProcessing {chunk_file}...")
+            print(f"Sending chunk to OpenAI: {chunk_file}...")
 
             # Wait for API response
             response = await client.chat.completions.create(

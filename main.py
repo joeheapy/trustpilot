@@ -8,9 +8,9 @@ from dotenv import load_dotenv
 from functions import get_input_file, process_chunks, initialize_directories, generate_journey_steps, map_reviews_to_journey
 
 # Set chunk size
-NUM_REVIEWS_PER_CHUNK = 5
+NUM_REVIEWS_PER_CHUNK = 20
 # Set number of chunks to process
-NUM_CHUNKS = 1
+NUM_CHUNKS = 2
 
 # Load environment variables
 load_dotenv()
@@ -34,7 +34,7 @@ def load_json_data(input_file):
         with open(input_file, 'r') as f:
             reviews_data = json.load(f)
             
-        print(f"Successfully loaded {len(reviews_data)} reviews from {input_file}")
+        print(f"\nSuccessfully loaded {len(reviews_data)} reviews\n")
         return reviews_data
         
     except json.JSONDecodeError as e:
@@ -125,14 +125,14 @@ async def main():
         
         # Generate customer journey steps
         await generate_journey_steps()
-        print("Customer journey analysis complete")
+        print("\nCustomer journey analysis complete")
         
         # Map reviews to journey steps
         await map_reviews_to_journey()
-        print("Review journey mapping complete")
+        print("\nReview journey mapping complete")
         
     except Exception as e:
-        print(f"Error in main execution: {str(e)}")
+        print(f"\nError in main execution: {str(e)}")
         raise
 
 if __name__ == "__main__":

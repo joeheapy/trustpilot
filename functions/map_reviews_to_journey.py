@@ -77,20 +77,20 @@ async def map_reviews_to_journey():
                 {
                     "step_name": "exact step name from journey steps",
                     "rating": 5,
-                    "date": "YYYY-MM-DD"
+                    "reviewDateOfExperience": "YYYY-MM-DD"
                 }
             ]
         }
 
         Requirements:
-        - date must match original review date exactly and in the format YYYY-MM-DD (e.g., 2028-01-17)
+        - reviewDateOfExperience must match original review date exactly and in the format YYYY-MM-DD (e.g., 2028-01-17)
         - rating must be integer 1-5
         - step_name must exactly match one from provided journey steps
         - all fields are required"""
         
         # Make OpenAI API call
         response = await client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o-2024-08-06",
             messages=[
                 {"role": "system", "content": "You are mapping customer reviews to journey steps."},
                 {"role": "user", "content": f"Journey steps: {json.dumps(journey_data)}"},
@@ -99,32 +99,34 @@ async def map_reviews_to_journey():
             ]
         )
         
-        # Validate and parse response
-        content = response.choices[0].message.content
-        if not content:
-            raise ValueError("Empty response from OpenAI")
-            
+        # Clean and validate response
+        content = response.choices[0].message.content.strip()
+        # print(f"Raw response: {content[:200]}...")  # Debug log
+        
+        # Remove markdown code block markers
+        content = content.replace('```json', '').replace('```', '').strip()
+        # print(f"Cleaned content: {content[:200]}...")  # Debug log
+        
         try:
             mapped_data = json.loads(content)
         except json.JSONDecodeError as e:
-            print(f"Invalid JSON response: {content}")
+            print(f"JSON Parse Error: {str(e)}\nContent: {content}")
             raise
         
-        # Validate response structure
+        # Validate structure
         if "reviews_by_journey_step" not in mapped_data:
-            raise ValueError("Response missing reviews_by_journey_step")
+            raise ValueError("Response missing reviews_by_journey_step key")
             
-        # Validate each review
+        # Validate reviews
         for review in mapped_data["reviews_by_journey_step"]:
-            # Check required fields
-            required_fields = ["step_name", "rating", "date"]
+            required_fields = ["step_name", "rating", "reviewDateOfExperience"]
             missing_fields = [f for f in required_fields if f not in review]
             if missing_fields:
                 raise ValueError(f"Review missing required fields: {missing_fields}")
             
             # Convert and validate date
             try:
-                review["date"] = convert_date_format(review["date"])
+                review["reviewDateOfExperience"] = convert_date_format(review["reviewDateOfExperience"])
             except ValueError as e:
                 raise ValueError(f"Date format error: {str(e)}")
             
@@ -136,9 +138,9 @@ async def map_reviews_to_journey():
                 raise ValueError(f"Invalid rating value: {review['rating']}")
                 
             try:
-                datetime.strptime(review["date"], "%Y-%m-%d")
+                datetime.strptime(review["reviewDateOfExperience"], "%Y-%m-%d")
             except ValueError:
-                raise ValueError(f"Invalid date format: {review['date']}")
+                raise ValueError(f"Invalid date format: {review['reviewDateOfExperience']}")
         
         # Save mapped reviews
         output_file = os.path.join(
@@ -148,17 +150,12 @@ async def map_reviews_to_journey():
         
         with open(output_file, 'w') as f:
             json.dump({
-                "metadata": {
-                    "summary_source": latest_summary,
-                    "journey_source": latest_journey,
-                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                },
-                "mapped_reviews": mapped_data["reviews_by_journey_step"]
+                "reviews_by_journey_step": mapped_data["reviews_by_journey_step"]
             }, f, indent=2)
         
-        print(f"Mapped reviews saved to: {output_file}")
+        print(f"\nMapped reviews saved to: {output_file}")
         return mapped_data
         
     except Exception as e:
-        print(f"Error mapping reviews to journey: {str(e)}")
+        print(f"/nError mapping reviews to journey: {str(e)}")
         raise
